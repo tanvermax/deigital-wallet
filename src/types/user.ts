@@ -1,0 +1,38 @@
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  avatar?: string;
+  status: 'active' | 'inactive' | 'suspended';
+  joinDate: string;
+}
+
+export interface Wallet {
+  balance: number;
+  currency: string;
+  lastUpdated: string;
+  totalDeposits: number;
+  totalWithdrawals: number;
+}
+
+export interface Transaction {
+  _id: string;
+  type: string;
+  amount: number;
+  description: string;
+  createdAt: string;
+  status: 'completed' | 'pending' | 'failed';
+  recipient?: string;
+  reference: string;
+}
+
+export interface QuickAction {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+  variant: 'default' | 'destructive' | 'outline' | 'secondary';
+  href?: string;
+  action?: () => void;
+}
