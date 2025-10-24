@@ -1,10 +1,10 @@
 import {
+  LayoutDashboard,
   // BoltIcon,
   // BookOpenIcon,
   // Layers2Icon,
   LogOutIcon,
-  // PinIcon,
-  // UserPenIcon,
+  UserPenIcon,
 } from "lucide-react"
 
 import {
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  // DropdownMenuGroup,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -24,18 +24,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { authApi, useLogoutMutation } from "@/redux/features/auth/auth.api";
 import { useAppDispatch } from "@/redux/hook";
+import { Link } from "react-router";
 
 export interface IUser {
   email: string;
   name: string;
-  role: 'ADMIN' | 'USER';
+  role: 'ADMIN' | 'USER' | "AGENT";
 }
 interface UserMenuProps {
   userData: IUser
 }
 
 
-export default function UserMenu({userData}:UserMenuProps) {
+export default function UserMenu({ userData }: UserMenuProps) {
   const [logout] = useLogoutMutation();
   const dispatch = useAppDispatch();
 
@@ -58,6 +59,7 @@ export default function UserMenu({userData}:UserMenuProps) {
       <DropdownMenuContent className="max-w-64" align="end">
         <DropdownMenuLabel className="flex min-w-0 flex-col">
           <span className="truncate text-sm font-medium text-foreground">
+
             {userData?.name}
           </span>
           <span className="truncate text-xs font-normal text-muted-foreground">
@@ -78,18 +80,29 @@ export default function UserMenu({userData}:UserMenuProps) {
             <BookOpenIcon size={16} className="opacity-60" aria-hidden="true" />
             <span>Option 3</span>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
+        </DropdownMenuGroup> */}
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <PinIcon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Option 4</span>
+
+          <DropdownMenuItem >
+
+            <LayoutDashboard size={16} className="opacity-60" aria-hidden="true" />
+            {
+              userData.role === "AGENT" ? <Link to={"dashbord/agent"}><span>Dashbord</span></Link> : ""
+            }
+            {
+              userData.role === "USER" ? <Link to={"dashbord/user"}><span>Dashbord</span></Link> : ""
+            }
+            {
+              userData.role === "ADMIN" ? <Link to={"dashbord/admin"}><span>Dashbord</span></Link> : ""
+            }
+            {/* <Link to={"dashbord"}><span>Dashbord</span></Link> */}
           </DropdownMenuItem>
           <DropdownMenuItem>
             <UserPenIcon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Option 5</span>
+            <span>{userData.role}</span>
           </DropdownMenuItem>
-        </DropdownMenuGroup> */}
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handlelogout}>
           <LogOutIcon size={16} className="opacity-60" aria-hidden="true" />
