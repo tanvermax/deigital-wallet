@@ -1,11 +1,13 @@
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   phone: string;
   avatar?: string;
   status: 'active' | 'inactive' | 'suspended';
   joinDate: string;
+  isActive:boolean,
+createdAt:string
 }
 
 export interface Wallet {
@@ -25,6 +27,8 @@ export interface Transaction {
   status: 'completed' | 'pending' | 'failed';
   recipient?: string;
   reference: string;
+  receiver:string,
+  name?:string
 }
 
 export interface QuickAction {

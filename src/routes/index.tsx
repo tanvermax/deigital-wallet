@@ -1,5 +1,6 @@
 import App from "@/App";
 import DeluxeError from "@/components/ErrorLayout/Error";
+import AdminOverview from "@/components/layout/AdminLayout/AdminOverview";
 import Addmoney from "@/components/layout/AgentLayout/AddMoneyInterface/Addmoney";
 import AgentOverview from "@/components/layout/AgentLayout/AddMoneyInterface/AgentOverview";
 import DasbordLayout from "@/components/layout/Dashbord/DashbordLaayout";
@@ -48,6 +49,16 @@ export const router = createBrowserRouter([
         children: [
             {
                 Component: AgentOverview,
+                path: ""
+            }
+        ]
+    },
+     {
+        Component: DasbordLayout,
+        path: "dashbord/admin",
+        children: [
+            {
+                Component: AdminOverview,
                 path: ""
             }
         ]

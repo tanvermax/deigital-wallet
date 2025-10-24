@@ -188,7 +188,7 @@ export default function UserOverview() {
                                 </div>
                                 <div>
                                     <div className="font-medium text-muted-foreground">User ID</div>
-                                    <div className="font-mono">{userData.data._id}</div>
+                                    <div className="font-semibold  ">{userData.data._id}</div>
                                 </div>
                             </div>
                         </CardContent>

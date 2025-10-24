@@ -7,8 +7,13 @@ import type { ISidebarItem } from "@/types";
       url: "#",
       items: [
         {
-          title: "Bookins",
-          url: "/user/booking",
+          title: "Send Money",
+          url: "/user/sendmoney",
+          component:Withdrawmoney
+        },
+        {
+          title: "Withdrawl",
+          url: "/user/withdraw",
           component:Withdrawmoney
         },
         
