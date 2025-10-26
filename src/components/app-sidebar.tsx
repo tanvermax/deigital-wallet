@@ -162,9 +162,9 @@ import { Link } from "react-router"
 // }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
- const { data: userData } = useUserInfoQuery(undefined);
-  const data= {
-    navMain:getSidebarItems(userData?.data?.role)
+  const { data: userData } = useUserInfoQuery(undefined);
+  const data = {
+    navMain: getSidebarItems(userData?.data?.role)
   }
   // console.log(userData)
 
@@ -174,9 +174,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href={
+                userData?.data?.role === 'AGENT'
+                  ? "/dashbord/agent"
+                  :
+                  userData?.data?.role === 'ADMIN'
+                    ? "/dashbord/admin"
+                    : "/dashbord/user"
+              }>
                 {/* <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"> */}
-                  <Logo/>
+                <Logo />
                 {/* </div> */}
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-medium">Digital-wallet</span>

@@ -1,5 +1,6 @@
 "use client";
-
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ export default function AdminOverview() {
   console.log(users)
   console.log(transactions)
   console.log(balance)
- 
+
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
@@ -50,16 +51,69 @@ export default function AdminOverview() {
   const handleAction = (action: string) => {
     toast.success(`${action} সফলভাবে সম্পন্ন হয়েছে!`);
   };
-   if ( isUsersLoading || isTransactionsLoading||isStatsLoading) {
+  if (isUsersLoading || isTransactionsLoading || isStatsLoading) {
     return <div className="text-center py-10 text-muted-foreground">ডেটা লোড হচ্ছে...</div>;
   }
 
-  if (!users || !transactions|| !balance) {
+  if (!users || !transactions || !balance) {
     return <div className="text-center py-10 text-red-500">ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const drive = driver({
+    popoverClass:"driverjs-theme",
+    showProgress: true,
+    prevBtnText:"Show Prev",
+    nextBtnText:"Show Next",
+    animate:true,
+    showButtons: ['next', 'previous', 'close'],
+    steps: [
+      {
+        element: "#admindasbord",
+
+        popover: {
+          title: "it is your Dashbord,",
+          description: "you will find you all info here "
+        },
+      },
+      {
+        element: "#totoaluser",
+        popover: {
+          title: "sum of total user",
+          description: "you will find list of total user "
+        }
+      },
+      {
+        element: "#totaltransaction",
+        popover: {
+          title: "sum of total transaction",
+          description: "you will find list of total transaction "
+        }
+      }, {
+        element: "#totalbalance",
+        popover: {
+          title: "sum of total balance",
+          description: "you will find list of total balance "
+        }
+      },
+      {
+        popover: {
+          title: "something good ",
+          description: "happy journy "
+        }
+      }
+    ]
+  }).drive();
+
+  // drive.highlight({
+  //   element:'#hihello',
+  //   popover:{
+  //     title:"it is Admin dashbord and you will finde all inportant here ",
+  //     description:"all user , transaction and data"
+  //   }
+  // })
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div id="admindasbord" className="container mx-auto p-4 space-y-6 ">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
@@ -90,7 +144,7 @@ export default function AdminOverview() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card id="totoaluser">
           <CardHeader>
             <CardTitle>Total Users</CardTitle>
             <CardDescription>All registered users</CardDescription>
@@ -100,7 +154,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card id="totaltransaction">
           <CardHeader>
             <CardTitle>Total Transactions</CardTitle>
             <CardDescription>All-time system transactions</CardDescription>
@@ -110,7 +164,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card id="totalbalance">
           <CardHeader>
             <CardTitle>Total Balance</CardTitle>
             <CardDescription>Sum of all user wallets</CardDescription>

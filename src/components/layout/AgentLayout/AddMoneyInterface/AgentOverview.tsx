@@ -39,7 +39,7 @@ import {
 } from "@/redux/features/wallet/wallet.api";
 // import { useAgentTransactionQuery } from "@/redux/features/agenttransaction/agent.tansaction";
 import type { QuickAction, Transaction, User, Wallet } from "@/types/user";
-import { useAgentTransactionQuery } from "@/redux/features/agenttransaction/agenttansaction.api";
+import { useAgentTransactionQuery } from "@/redux/features/agent/agenttansaction.api";
 
 
 

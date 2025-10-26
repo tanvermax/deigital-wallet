@@ -2,11 +2,12 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  role:string,
   phone: string;
   avatar?: string;
-  status: 'active' | 'inactive' | 'suspended';
+  // isActive: 'active' | 'inactive' | 'suspended';
   joinDate: string;
-  isActive:boolean,
+  isActive:"ACTIVE"|"BLOCK",
 createdAt:string
 }
 
@@ -21,11 +22,12 @@ export interface Wallet {
 export interface Transaction {
   _id: string;
   type: string;
-  amount: number;
+  amount: number | 0;
   description: string;
   createdAt: string;
   status: 'completed' | 'pending' | 'failed';
   recipient?: string;
+  totolammount:number,
   reference: string;
   receiver:string,
   name?:string

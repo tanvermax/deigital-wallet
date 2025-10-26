@@ -22,8 +22,16 @@ export const agentTransactionapi = baseApi.injectEndpoints({
             }),
             providesTags: ["AGENTTRANSACTION"],
             transformResponse: (arg) => arg.data,
-        })
+        }),
+        admoney: builder.mutation({
+            query: (admoneyinfo) => ({
+                url: "agent/addmoney",
+                method: "POST",
+                data: admoneyinfo
+            }),
+            
+        }),
     })
 })
 
-export const { useAgentTransactionQuery } = agentTransactionapi
+export const { useAgentTransactionQuery,useAdmoneyMutation } = agentTransactionapi

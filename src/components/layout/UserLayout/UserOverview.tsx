@@ -12,7 +12,7 @@ import type { QuickAction, Transaction, User, Wallet } from "@/types/user";
 import { toast } from "sonner";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { useWalletinfoQuery } from "@/redux/features/wallet/wallet.api";
-import {  useUserTransactionQuery } from "@/redux/features/transaction/transaction.api";
+import { useUserTransactionQuery } from "@/redux/features/transaction/transaction.api";
 
 
 export default function UserOverview() {
@@ -22,7 +22,7 @@ export default function UserOverview() {
     // Mock user data
 
     // console.log(userData.data.role)
-    
+
     const [user] = useState<User>({
         id: "1",
         name: "John Doe",
@@ -193,37 +193,6 @@ export default function UserOverview() {
                             </div>
                         </CardContent>
                     </Card>
-
-                    {/* Quick Actions */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Quick Actions</CardTitle>
-                            <CardDescription>Frequently used operations</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            {quickActions.map((action) => (
-                                <Button
-                                    key={action.id}
-                                    variant={action.variant}
-                                    className="w-full justify-start h-auto py-3"
-                                    onClick={action.action}
-                                >
-                                    <span className="text-xl mr-3">{action.icon}</span>
-                                    <div className="text-left">
-                                        <div className="font-medium">{action.label}</div>
-                                        <div className="text-xs text-muted-foreground">
-                                            {action.description}
-                                        </div>
-                                    </div>
-                                </Button>
-                            ))}
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Right Column - Wallet & Transactions */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Wallet Balance Card */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Wallet Balance</CardTitle>
@@ -275,6 +244,38 @@ export default function UserOverview() {
                         </CardContent>
                     </Card>
 
+                    {/* Quick Actions */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Quick Actions</CardTitle>
+                            <CardDescription>Frequently used operations</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            {quickActions.map((action) => (
+                                <Button
+                                    key={action.id}
+                                    variant={action.variant}
+                                    className="w-full justify-start h-auto py-3"
+                                    onClick={action.action}
+                                >
+                                    <span className="text-xl mr-3">{action.icon}</span>
+                                    <div className="text-left">
+                                        <div className="font-medium">{action.label}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {action.description}
+                                        </div>
+                                    </div>
+                                </Button>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Right Column - Wallet & Transactions */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Wallet Balance Card */}
+                    
+
                     {/* Recent Transactions */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
@@ -304,7 +305,7 @@ export default function UserOverview() {
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-xl">
-                                                      {getTransactionIcon(transaction.type)}
+                                                        {getTransactionIcon(transaction.type)}
                                                     </span>
                                                     <div>
                                                         <div className="font-medium">
@@ -325,7 +326,7 @@ export default function UserOverview() {
                                                     `
                                                 }>
                                                     {/* {transaction.type === 'deposit' ? '+' : '-'} */}
-                                                    {formatCurrency(transaction.amount)}
+                                                    {formatCurrency(transaction.totolammount | 0)}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-sm text-muted-foreground">

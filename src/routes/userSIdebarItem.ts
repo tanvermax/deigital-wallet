@@ -1,3 +1,4 @@
+import UserOverview from "@/components/layout/UserLayout/UserOverview";
 import Withdrawmoney from "@/components/layout/UserLayout/Withdrawmoney";
 import type { ISidebarItem } from "@/types";
 
@@ -7,13 +8,28 @@ import type { ISidebarItem } from "@/types";
       url: "#",
       items: [
         {
+          title: "Home",
+          url: "",
+          component:UserOverview
+        },
+        {
           title: "Send Money",
-          url: "/user/sendmoney",
+          url: "sendmoney",
           component:Withdrawmoney
         },
         {
           title: "Withdrawl",
-          url: "/user/withdraw",
+          url: "withdraw",
+          component:Withdrawmoney
+        },
+        {
+          title: "Transaction history",
+          url: "usertransaction",
+          component:Withdrawmoney
+        },
+        {
+          title: "Profile management ",
+          url: "userprofile",
           component:Withdrawmoney
         },
         

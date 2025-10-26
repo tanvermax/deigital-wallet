@@ -2,57 +2,75 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Password from "@/components/ui/Password";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useRegisterMutation } from "@/redux/features/auth/auth.api";
 
 const registerSchema = z
   .object({
-    name: z
-      .string()
-      .min(3, {
-        error: "Name is too short",
-      })
-      .max(50),
-    email: z.email(),
-    password: z.string().min(8, { error: "Password is too short" }),
-    confirmPassword: z
-      .string()
-      .min(8, { error: "Confirm Password is too short" }),
+    name: z.string().min(3, { message: "Name is too short" }).max(50),
+    email: z.string().email(),
+    role: z.enum(["USER", "AGENT"], { message: "Please select a valid role" }),
+    password: z.string().min(8, { message: "Password is too short" }),
+    confirmPassword: z.string().min(8, { message: "Confirm Password is too short" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Password do not match",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-
-export function RegisterForm({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-    const form = useForm<z.infer<typeof registerSchema>>({
+export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  const [registration] = useRegisterMutation()
+    const navigate = useNavigate();
+  const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
       email: "",
+      role: "USER",
       password: "",
       confirmPassword: "",
     },
   });
 
-    const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-    console.log(data)
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+    console.log(data);
+    const userInfo = {
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      password: data.password,
+    }
+    try {
+      const result = await registration(userInfo).unwrap();
+      console.log(result.message);
+    toast.success(` ${result.message}`)
+
+      if (result.message == "User created successfully") {
+        navigate("/login")
+      }
+
+      // navigate("/verify");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error:any) {
+    toast.error(`error  ${error.data.message}`)
+
+      console.error(error);
+    }
   };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
@@ -65,6 +83,7 @@ export function RegisterForm({
       <div className="grid gap-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Name */}
             <FormField
               control={form.control}
               name="name"
@@ -74,13 +93,12 @@ export function RegisterForm({
                   <FormControl>
                     <Input placeholder="John Doe" {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Email */}
             <FormField
               control={form.control}
               name="email"
@@ -88,19 +106,37 @@ export function RegisterForm({
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="john.doe@company.com"
-                      type="email"
-                      {...field}
-                    />
+                    <Input placeholder="john.doe@example.com" type="email" {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Role Select */}
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="USER">User</SelectItem>
+                      <SelectItem value="AGENT">Agent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Password */}
             <FormField
               control={form.control}
               name="password"
@@ -110,13 +146,12 @@ export function RegisterForm({
                   <FormControl>
                     <Password {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Confirm Password */}
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -126,13 +161,11 @@ export function RegisterForm({
                   <FormControl>
                     <Password {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <Button type="submit" className="w-full">
               Submit
             </Button>
@@ -145,11 +178,7 @@ export function RegisterForm({
           </span>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full cursor-pointer"
-        >
+        <Button type="button" variant="outline" className="w-full cursor-pointer">
           Login with Google
         </Button>
       </div>
@@ -161,5 +190,5 @@ export function RegisterForm({
         </Link>
       </div>
     </div>
-  )
+  );
 }

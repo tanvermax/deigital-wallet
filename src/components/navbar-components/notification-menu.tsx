@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { BellIcon } from "lucide-react"
-
+// import { driver } from "driver.js";
+// import "driver.js/dist/driver.css";
 import { Button } from "@/components/ui/button"
 import {
   Popover,
@@ -100,16 +101,17 @@ export default function NotificationMenu() {
     )
   }
 
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
+        <Button 
           size="icon"
           variant="ghost"
           className="relative size-8 rounded-full text-muted-foreground shadow-none"
           aria-label="Open notifications"
         >
-          <BellIcon size={16} aria-hidden="true" />
+          <BellIcon  size={16} aria-hidden="true" />
           {unreadCount > 0 && (
             <div
               aria-hidden="true"
