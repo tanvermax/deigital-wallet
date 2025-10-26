@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAdmoneyMutation } from "@/redux/features/agent/agenttansaction.api";
+// import { useAllUserInfoQuery } from "@/redux/features/admin/admin.api";
 
 export default function AgentAddMoney() {
   const [userId, setUserId] = useState("");
@@ -14,7 +15,8 @@ export default function AgentAddMoney() {
   const [loading, setLoading] = useState(false);
 
   const [addMoney] = useAdmoneyMutation();
-
+//   const {data:userdata} = useAllUserInfoQuery(undefined)
+// console.log(userdata)
   const handleAddMoney = async () => {
     if (!userId || !amount || amount <= 0) {
       toast.error("দয়া করে বৈধ ইউজার ID এবং পরিমাণ লিখুন!");

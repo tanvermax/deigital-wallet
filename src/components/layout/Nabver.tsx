@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/popover"
 import { Link } from "react-router"
 import Logo from "../logos/navbar-components/logo"
-import NotificationMenu from "../navbar-components/notification-menu"
+// import NotificationMenu from "../navbar-components/notification-menu"
 import UserMenu from "../navbar-components/user-menu"
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api"
+import { Lightdrak } from "../comp-184"
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -113,10 +114,11 @@ export default function Navber() {
 
           <div className="flex flex-1 items-center justify-end gap-2">
             {/* Notification */}
+            <Lightdrak/>
             {/* User menu */}
             {
               data?.data?.email && (<>
-                <NotificationMenu />
+                {/* <NotificationMenu /> */}
 
                 <UserMenu userData={data?.data} />
               </>)
