@@ -29,7 +29,7 @@ const navigationLinks = [
 
 export default function Navber() {
   const { data } = useUserInfoQuery(undefined);
-  // console.log(data)
+  console.log(data)
   return (
     <header className="border-b px-4 md:px-6 ">
       <div className="flex h-16 justify-between gap-4">

@@ -56,7 +56,7 @@ export default function AgentOverview() {
   // const [wallet] = useState<Wallet>({...}); 
 
   // --- Utility Functions and Data ---
-  console.log(agettransactions)
+  // console.log(agettransactions)
   
   const quickActions: QuickAction[] = [
     {
