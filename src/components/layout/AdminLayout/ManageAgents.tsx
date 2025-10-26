@@ -81,6 +81,7 @@ export default function ManageAgents() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>ID</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Status</TableHead>
@@ -96,6 +97,7 @@ export default function ManageAgents() {
                 return (
                   <TableRow key={agent._id}>
                     <TableCell>{agent.name}</TableCell>
+                    <TableCell>{agent._id}</TableCell>
                     <TableCell>{agent.email}</TableCell>
                     <TableCell>{agent.phone}</TableCell>
                     <TableCell>
