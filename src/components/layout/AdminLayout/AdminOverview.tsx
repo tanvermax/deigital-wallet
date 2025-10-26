@@ -8,20 +8,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { useEffect } from "react"; // <--- Import useEffect
 // import { useAdminStatsQuery, useAllUsersQuery } from "@/redux/features/admin/admin.api";
 import type { Transaction, User } from "@/types/user";
 import { useAllBalanceQuery, useAllUserInfoQuery, useTransactionInfoQuery } from "@/redux/features/admin/admin.api";
 
+// Key for localStorage to track if the tour has been shown
+const TOUR_SHOWN_KEY = "admin_dashboard_tour_complete";
+
 export default function AdminOverview() {
   const { data: balance, isLoading: isStatsLoading } = useAllBalanceQuery(undefined);
-
   const { data: users, isLoading: isUsersLoading } = useAllUserInfoQuery(undefined);
   const { data: transactions, isLoading: isTransactionsLoading } = useTransactionInfoQuery(undefined);
 
-  console.log(users)
-  console.log(transactions)
-  console.log(balance)
-
+  // --- Utility Functions ---
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
@@ -49,69 +49,98 @@ export default function AdminOverview() {
   };
 
   const handleAction = (action: string) => {
-    toast.success(`${action} সফলভাবে সম্পন্ন হয়েছে!`);
+    toast.success(`${action} সফলভাবে সম্পন্ন হয়েছে!`);
   };
+
+  // --- Tour Logic (useEffect) ---
+  useEffect(() => {
+    // Check if the tour has already been shown
+    if (localStorage.getItem(TOUR_SHOWN_KEY) === "true") {
+      return;
+    }
+
+    // Define and run the driver
+    const dashTour = driver({
+      popoverClass: "driverjs-theme",
+      showProgress: true,
+      prevBtnText: "Previous",
+      nextBtnText: "Next",
+      animate: true,
+      showButtons: ['next', 'previous', 'close'],
+      steps: [
+        {
+          element: "#admindasbord",
+          popover: {
+            title: "Welcome to your Admin Dashboard",
+            description: "Here you can find all critical system information and controls."
+          },
+        },
+        {
+          element: "#totoaluser",
+          popover: {
+            title: "Total Users",
+            description: "This card shows the total count of registered users."
+          }
+        },
+        {
+          element: "#totaltransaction",
+          popover: {
+            title: "Total Transactions",
+            description: "This shows the overall number of transactions processed by the system."
+          }
+        },
+        {
+          element: "#totalbalance",
+          popover: {
+            title: "Total Balance",
+            description: "The cumulative balance across all user wallets."
+          }
+        },
+        {
+          element: "#recentusers-card", // Targeting a new ID for clarity
+          popover: {
+            title: "Recent Users",
+            description: "Keep an eye on the latest registrations here."
+          }
+        },
+        {
+          element: "#recenttransactions-card", // Targeting a new ID for clarity
+          popover: {
+            title: "Recent Transactions",
+            description: "View the most recent activities in the system."
+          }
+        },
+        {
+          popover: {
+            title: "Tour Complete!",
+            description: "You're all set! Use the dashboard controls to manage the system. Happy administering!"
+          }
+        }
+      ],
+      // Add callback to run when the tour is finished or closed
+      onDestroyStarted: () => {
+        // Only set the flag if the user closes/finishes the tour
+        // This ensures they don't see it again.
+        localStorage.setItem(TOUR_SHOWN_KEY, "true");
+        dashTour.destroy();
+      }
+    });
+
+    // Start the tour
+    dashTour.drive();
+
+  }, []); // Empty dependency array ensures this runs only once after mount
+
+  // --- Loading/Error States ---
   if (isUsersLoading || isTransactionsLoading || isStatsLoading) {
     return <div className="text-center py-10 text-muted-foreground">ডেটা লোড হচ্ছে...</div>;
   }
 
   if (!users || !transactions || !balance) {
-    return <div className="text-center py-10 text-red-500">ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
+    return <div className="text-center py-10 text-red-500">ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const drive = driver({
-    popoverClass:"driverjs-theme",
-    showProgress: true,
-    prevBtnText:"Show Prev",
-    nextBtnText:"Show Next",
-    animate:true,
-    showButtons: ['next', 'previous', 'close'],
-    steps: [
-      {
-        element: "#admindasbord",
-
-        popover: {
-          title: "it is your Dashbord,",
-          description: "you will find you all info here "
-        },
-      },
-      {
-        element: "#totoaluser",
-        popover: {
-          title: "sum of total user",
-          description: "you will find list of total user "
-        }
-      },
-      {
-        element: "#totaltransaction",
-        popover: {
-          title: "sum of total transaction",
-          description: "you will find list of total transaction "
-        }
-      }, {
-        element: "#totalbalance",
-        popover: {
-          title: "sum of total balance",
-          description: "you will find list of total balance "
-        }
-      },
-      {
-        popover: {
-          title: "something good ",
-          description: "happy journy "
-        }
-      }
-    ]
-  }).drive();
-
-  // drive.highlight({
-  //   element:'#hihello',
-  //   popover:{
-  //     title:"it is Admin dashbord and you will finde all inportant here ",
-  //     description:"all user , transaction and data"
-  //   }
-  // })
+  // --- Render Component ---
   return (
     <div id="admindasbord" className="container mx-auto p-4 space-y-6 ">
       {/* Header */}
@@ -178,7 +207,7 @@ export default function AdminOverview() {
       </div>
 
       {/* Users Table */}
-      <Card>
+      <Card id="recentusers-card"> {/* Added ID here */}
         <CardHeader className="flex justify-between items-center">
           <div>
             <CardTitle>Recent Users</CardTitle>
@@ -217,7 +246,7 @@ export default function AdminOverview() {
       </Card>
 
       {/* Transactions Table */}
-      <Card>
+      <Card id="recenttransactions-card"> {/* Added ID here */}
         <CardHeader className="flex justify-between items-center">
           <div>
             <CardTitle>Recent Transactions</CardTitle>
