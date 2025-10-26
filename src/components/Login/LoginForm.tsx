@@ -32,6 +32,7 @@ export function LoginForm({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err)
+      //  toast.error(err.data)
       if (err.data) {
         toast.error(err.data.message)
         console.log(err.data.message)

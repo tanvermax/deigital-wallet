@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -8,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useUserTransactionQuery } from "@/redux/features/transaction/transaction.api";
 import { format } from "date-fns";
+import type { Transaction } from "@/types/user";
 
 const UserTransactions = () => {
-  const { data: transactionsData, isLoading } = useUserTransactionQuery(undefined);
+  const { data: transactionsData, isLoading, refetch } = useUserTransactionQuery(undefined);
 
   const [filterType, setFilterType] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<string>("");
@@ -19,8 +21,10 @@ const UserTransactions = () => {
   const itemsPerPage = 6;
 
   const transactions = transactionsData?.data || [];
-
-  console.log(transactionsData)
+  useEffect(() => {
+    refetch();
+  })
+  // console.log(transactionsData)
   // ✅ Filtering logic
   const filteredTransactions = useMemo(() => {
     return transactions.filter((t: any) => {
@@ -114,31 +118,29 @@ const UserTransactions = () => {
               </TableHeader>
               <TableBody>
                 {paginatedData.length > 0 ? (
-                  paginatedData.map((t: any) => (
+                  paginatedData.map((t: Transaction) => (
                     <TableRow key={t._id}>
                       <TableCell className="capitalize font-medium">
                         {t.type}
                       </TableCell>
                       <TableCell
-                        className={`font-semibold ${
-                          t.type === "deposit" || t.type === "receive"
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
+                        className={`font-semibold ${t.type === "deposit" || t.type === "receive"
+                          ? "text-green-600"
+                          : "text-red-600"
+                          }`}
                       >
                         {t.type === "deposit" || t.type === "receive" ? "+" : "-"}৳
                         {parseFloat(t.totolammount).toFixed(3)}
-                        
+
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            t.status === "completed"
-                              ? "bg-green-100 text-green-700"
-                              : t.status === "pending"
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : t.status === "pending"
                               ? "bg-yellow-100 text-yellow-700"
                               : "bg-red-100 text-red-700"
-                          }`}
+                            }`}
                         >
                           {t.status}
                         </span>

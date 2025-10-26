@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Save } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { toast } from "sonner";
 
@@ -58,6 +58,7 @@ export default function AdminProfile() {
 
             refetch();
             setFormData((prev) => ({ ...prev, password: "" }));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             console.log(err)
             toast.error("Update Failed!,Something went wrong. Try again later..")

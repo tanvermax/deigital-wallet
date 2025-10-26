@@ -27,7 +27,8 @@ export interface Transaction {
   createdAt: string;
   status: 'completed' | 'pending' | 'failed';
   recipient?: string;
-  totolammount:number,
+  totolammount: string,
+  commision:string,
   reference: string;
   receiver:string,
   name?:string

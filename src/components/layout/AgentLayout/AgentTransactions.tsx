@@ -4,17 +4,23 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 // import { useAgentTransactionQuery } from "@/redux/features/transaction/transaction.api"; // API hook
 import { useAgentTransactionQuery } from "@/redux/features/agent/agenttansaction.api";
+import type { Transaction } from "@/types/user";
 import { formatCurrency, formatDate, getTransactionIcon } from "@/utils/helper";
+import { useEffect } from "react";
 
 export default function AgentTransactions() {
-  const { data: transactions, isLoading } = useAgentTransactionQuery(undefined);
-console.log(transactions)
+  const { data: transactions, isLoading, refetch } = useAgentTransactionQuery(undefined);
+  useEffect(() => {
+    refetch();
+  })
+
+  console.log(transactions)
   if (isLoading) return <div>Transaction লোড হচ্ছে...</div>;
   if (!transactions || !transactions.data) return <div>কোনো transaction পাওয়া যায়নি।</div>;
 
 
 
-   const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
       active: "bg-green-100 text-green-800",
       suspended: "bg-red-100 text-red-800",
@@ -39,7 +45,7 @@ console.log(transactions)
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.data.map((t:any) => (
+          {transactions.data.map((t: Transaction) => (
             <TableRow key={t._id}>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -49,7 +55,7 @@ console.log(transactions)
               </TableCell>
               <TableCell>{formatCurrency(t.amount)}</TableCell>
               <TableCell>{formatDate(t.createdAt)}</TableCell>
-              
+
               <TableCell><span className="text-green-500 font-bold">+{parseFloat(t.commision).toFixed(3)}</span></TableCell>
               {/* <TableCell>{t.commision | 0}</TableCell> */}
               <TableCell>{getStatusBadge(t.status)}</TableCell>
