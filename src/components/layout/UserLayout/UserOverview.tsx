@@ -1,38 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // <-- Import useEffect
+import { driver } from "driver.js"; // <-- Import driver
+import "driver.js/dist/driver.css"; // <-- Import driver CSS
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type { QuickAction, Transaction, User, Wallet } from "@/types/user";
+import type { QuickAction, Transaction, Wallet } from "@/types/user";
 import { toast } from "sonner";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { useWalletinfoQuery } from "@/redux/features/wallet/wallet.api";
 import { useUserTransactionQuery } from "@/redux/features/transaction/transaction.api";
 
 
+// Key for localStorage to track if the tour has been shown
+const USER_TOUR_SHOWN_KEY = "user_dashboard_tour_complete";
+
 export default function UserOverview() {
     const { data: userData, isLoading: isUserLoading } = useUserInfoQuery(undefined)
     const { data: walletData, isLoading: isWalletLoading } = useWalletinfoQuery(undefined)
     const { data: transactions, isLoading: isHistoryLoading } = useUserTransactionQuery(undefined)
-    // Mock user data
 
-    // console.log(userData.data.role)
+    // Mock user data (kept for structure, but actual data comes from userData)
+    // const [user] = useState<User>({
+    //     _id: "1",
+    //     name: "John Doe",
+    //     email: "john.doe@example.com",
+    //     phone: "+1 (555) 123-4567",
+    //     avatar: "/avatars/john-doe.jpg",
+    //     status: "active",
+    //     joinDate: "2024-01-15"
+    // });
 
-    const [user] = useState<User>({
-        id: "1",
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "+1 (555) 123-4567",
-        avatar: "/avatars/john-doe.jpg",
-        status: "active",
-        joinDate: "2024-01-15"
-    });
-
+    // Mock wallet data (kept for structure, but actual data comes from walletData)
     const [wallet] = useState<Wallet>({
         balance: 12500.75,
         currency: "USD",
@@ -72,7 +76,7 @@ export default function UserOverview() {
         toast.success("Withdraw Funds")
     };
 
-    const getStatusBadge = (status: string) => {
+    const getStatusBadge = (status: string | boolean) => {
         const variants = {
             active: "bg-green-100 text-green-800",
             inactive: "bg-gray-100 text-gray-800",
@@ -81,10 +85,12 @@ export default function UserOverview() {
             pending: "bg-yellow-100 text-yellow-800",
             failed: "bg-red-100 text-red-800"
         };
+        // Normalize status to a string key for lookup
+        const statusKey = typeof status === 'boolean' ? (status ? 'active' : 'inactive') : status.toLowerCase();
 
         return (
-            <Badge variant="secondary" className={variants[status as keyof typeof variants]}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+            <Badge variant="secondary" className={variants[statusKey as keyof typeof variants] || variants.inactive}>
+                {statusKey.charAt(0).toUpperCase() + statusKey.slice(1)}
             </Badge>
         );
     };
@@ -100,9 +106,11 @@ export default function UserOverview() {
     };
 
     const formatCurrency = (amount: number) => {
+        // Use the actual currency from walletData if available, otherwise fallback to mock/default
+        const currency = walletData?.data?.currency || wallet.currency;
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: wallet.currency,
+            currency: currency,
         }).format(amount);
     };
 
@@ -115,25 +123,96 @@ export default function UserOverview() {
             minute: '2-digit'
         });
     };
+    
+    // --- Tour Logic (useEffect) ---
+    useEffect(() => {
+        // 1. Check if the tour has already been shown
+        if (localStorage.getItem(USER_TOUR_SHOWN_KEY) === "true") {
+            return;
+        }
 
-    // const utilizationPercentage = (wallet.totalDeposits > 0)
-    //     ? ((wallet.totalWithdrawals / wallet.totalDeposits) * 100)
-    //     : 0;
+        // 2. Define and run the driver
+        const userTour = driver({
+            popoverClass: "driverjs-theme",
+            showProgress: true,
+            prevBtnText: "Previous",
+            nextBtnText: "Next",
+            animate: true,
+            showButtons: ['next', 'previous', 'close'],
+            steps: [
+                {
+                    element: "#user-dashboard-main", // Target the main container
+                    popover: {
+                        title: "Welcome to your User Dashboard",
+                        description: "This is where you manage your account, wallet, and transactions."
+                    },
+                },
+                {
+                    element: "#user-profile-card",
+                    popover: {
+                        title: "Your Profile",
+                        description: "Check your account status and basic information here."
+                    }
+                },
+                {
+                    element: "#wallet-balance-card",
+                    popover: {
+                        title: "Wallet Balance",
+                        description: "This is your current available balance and wallet statistics."
+                    }
+                },
+                {
+                    element: "#quick-actions-card",
+                    popover: {
+                        title: "Quick Actions",
+                        description: "Perform fast operations like Send Money or Withdrawal."
+                    }
+                },
+                {
+                    element: "#recent-transactions-card",
+                    popover: {
+                        title: "Recent Transactions",
+                        description: "View the latest activities from your wallet."
+                    }
+                },
+                {
+                    popover: {
+                        title: "Tour Complete! ✅",
+                        description: "You're all set! Enjoy using your personal dashboard."
+                    }
+                }
+            ],
+            // 3. Add callback to set the flag when the tour is finished or closed
+            onDestroyStarted: () => {
+                localStorage.setItem(USER_TOUR_SHOWN_KEY, "true");
+                userTour.destroy();
+            }
+        });
+
+        // Start the tour
+        // Use a slight delay to ensure the DOM is fully ready after loading state resolves.
+        setTimeout(() => {
+            if (localStorage.getItem(USER_TOUR_SHOWN_KEY) !== "true") {
+                userTour.drive();
+            }
+        }, 500);
+
+    }, [isUserLoading, isWalletLoading, isHistoryLoading]); // Rerun if loading state changes (i.e., data becomes available)
+
+
+    // --- Loading/Error States ---
     if (isUserLoading || isWalletLoading || isHistoryLoading) {
-        // This is the cleanest way to show a loading state
-        return <div>ব্যবহারকারীর এবং ওয়ালেটের ডেটা লোড হচ্ছে...</div>;
+        return <div className="text-center py-10 text-muted-foreground">ব্যবহারকারীর এবং ওয়ালেটের ডেটা লোড হচ্ছে...</div>;
     }
 
-    // **Optional:** Check for successful data retrieval if the loading state finishes but data is still missing
-    if (!userData || !walletData || !userData.data || !walletData.data) {
-        // This handles cases where the fetch finished but failed or returned an empty payload
-        return <div>ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
+    // Check for successful data retrieval
+    if (!userData || !walletData || !transactions || !userData.data || !walletData.data) {
+        return <div className="text-center py-10 text-red-500">ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
     }
-
-    // console.log(transactions)
-
+    
+    // --- Render Component ---
     return (
-        <div className="container mx-auto p-4 space-y-6">
+        <div id="user-dashboard-main" className="container mx-auto p-4 space-y-6"> {/* Added ID for tour */}
             {/* Header */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div>
@@ -161,12 +240,12 @@ export default function UserOverview() {
                 {/* Left Column - User Info & Quick Actions */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* User Profile Card */}
-                    <Card>
+                    <Card id="user-profile-card"> {/* Added ID for tour */}
                         <CardHeader className="flex flex-row items-center gap-4">
                             <Avatar className="h-16 w-16">
-                                <AvatarImage src={user.avatar} alt={user.name} />
+                                {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
                                 <AvatarFallback className="text-lg">
-                                    {userData.data.name.split(' ').map((n: string) => n[0] ?? '').join('')}
+                                    {userData.data.name?.split(' ').map((n: string) => n[0] ?? '').join('') || 'U'}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
@@ -184,16 +263,17 @@ export default function UserOverview() {
                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <div className="font-medium text-muted-foreground">Phone</div>
-                                    <div>{user.phone}</div>
+                                    <div>{userData.data.phone || "012345678"}</div>
                                 </div>
                                 <div>
                                     <div className="font-medium text-muted-foreground">User ID</div>
-                                    <div className="font-semibold  ">{userData.data._id}</div>
+                                    <div className="font-semibold">{userData.data._id}</div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                    <Card>
+
+                    <Card id="wallet-balance-card"> {/* Added ID for tour */}
                         <CardHeader>
                             <CardTitle>Wallet Balance</CardTitle>
                             <CardDescription>
@@ -210,42 +290,11 @@ export default function UserOverview() {
                                     Last updated: {formatDate(walletData.data.updatedAt)}
                                 </p>
                             </div>
-
-                            {/* Wallet Statistics */}
-                            {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="text-center p-4 bg-muted rounded-lg">
-                                    <div className="text-2xl font-bold text-blue-600">
-                                        {formatCurrency(wallet.totalDeposits)}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">Total Deposits</div>
-                                </div>
-                                <div className="text-center p-4 bg-muted rounded-lg">
-                                    <div className="text-2xl font-bold text-orange-600">
-                                        {formatCurrency(wallet.totalWithdrawals)}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">Total Withdrawals</div>
-                                </div>
-                                <div className="text-center p-4 bg-muted rounded-lg">
-                                    <div className="text-2xl font-bold text-purple-600">
-                                        {utilizationPercentage.toFixed(1)}%
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">Funds Utilization</div>
-                                </div>
-                            </div> */}
-
-                            {/* Utilization Progress */}
-                            {/* <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span>Wallet Utilization</span>
-                                    <span>{utilizationPercentage.toFixed(1)}%</span>
-                                </div>
-                                <Progress value={utilizationPercentage} className="h-2" />
-                            </div> */}
                         </CardContent>
                     </Card>
 
                     {/* Quick Actions */}
-                    <Card>
+                    <Card id="quick-actions-card"> {/* Added ID for tour */}
                         <CardHeader>
                             <CardTitle>Quick Actions</CardTitle>
                             <CardDescription>Frequently used operations</CardDescription>
@@ -271,13 +320,10 @@ export default function UserOverview() {
                     </Card>
                 </div>
 
-                {/* Right Column - Wallet & Transactions */}
+                {/* Right Column - Transactions */}
                 <div className="lg:col-span-2 space-y-6">
-                    {/* Wallet Balance Card */}
-                    
-
                     {/* Recent Transactions */}
-                    <Card>
+                    <Card id="recent-transactions-card"> {/* Added ID for tour */}
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div>
                                 <CardTitle>Recent Transactions</CardTitle>
@@ -308,25 +354,23 @@ export default function UserOverview() {
                                                         {getTransactionIcon(transaction.type)}
                                                     </span>
                                                     <div>
-                                                        <div className="font-medium">
-                                                            {transaction.type}
+                                                        <div className="font-medium capitalize">
+                                                            {transaction.type.replace('_', ' ')}
                                                         </div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {/* {transaction.reference} */}
-                                                            {/* {transaction.recipient && ` • To: ${transaction.recipient}`} */}
+                                                            {/* Placeholder for ref/recipient if available */}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className={`font-medium 
-                                                ${transaction.type === 'deposit'
+                                                ${transaction.type === 'deposit' || transaction.type === 'add_money'
                                                         ? 'text-green-600'
                                                         : 'text-red-600'}
                                                     `
                                                 }>
-                                                    {/* {transaction.type === 'deposit' ? '+' : '-'} */}
-                                                    {formatCurrency(transaction.totolammount | 0)}
+                                                    {formatCurrency(Number(transaction.totolammount ?? transaction.amount ?? 0))}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-sm text-muted-foreground">

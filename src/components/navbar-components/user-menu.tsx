@@ -42,8 +42,12 @@ export default function UserMenu({ userData }: UserMenuProps) {
 
 
   const handlelogout = async () => {
-    await logout(undefined);
+    try {
+      await logout(undefined);
     dispatch(authApi.util.resetApiState());
+    } catch (error) {
+      console.log(error)
+    }
 
   }
   return (

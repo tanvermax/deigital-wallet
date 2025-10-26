@@ -3,8 +3,8 @@ import { useContext } from "react"
 
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext)
-  console.log("changes")
-  console.log(context)
+  // console.log("changes")
+  // console.log(context)
   if (context === undefined)
     throw new Error("useTheme must be used within a ThemeProvider")
 

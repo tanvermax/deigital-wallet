@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react"; // <-- Import useEffect
+import { driver } from "driver.js"; // <-- Import driver
+import "driver.js/dist/driver.css"; // <-- Import driver CSS
+
 import {
   Card,
   CardContent,
@@ -22,7 +25,6 @@ import {
 import {
   Avatar,
   AvatarFallback,
-  AvatarImage,
 } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -37,39 +39,25 @@ import {
 import {
   useWalletinfoQuery,
 } from "@/redux/features/wallet/wallet.api";
-// import { useAgentTransactionQuery } from "@/redux/features/agenttransaction/agent.tansaction";
-import type { QuickAction, Transaction, User, Wallet } from "@/types/user";
+import type { QuickAction, Transaction } from "@/types/user";
 import { useAgentTransactionQuery } from "@/redux/features/agent/agenttansaction.api";
 
-
+// Key for localStorage to track if the tour has been shown
+const AGENT_TOUR_SHOWN_KEY = "agent_dashboard_tour_complete";
 
 export default function AgentOverview() {
-  
+
   const { data: agentData, isLoading: isAgentLoading } = useUserInfoQuery(undefined);
   const { data: walletData, isLoading: isWalletLoading } = useWalletinfoQuery(undefined);
   const { data: agettransactions, isLoading: isHistoryLoading } = useAgentTransactionQuery(undefined)
 
+  // console.log(agettransactions)
+  // Removed unused useState initialization for `wallet`
+  // const [wallet] = useState<Wallet>({...}); 
+
+  // --- Utility Functions and Data ---
   console.log(agettransactions)
-
-
-  const [agent] = useState<User>({
-    id: "2",
-    name: "Agent Smith",
-    email: "agent.smith@example.com",
-    phone: "+880 1711 223344",
-    avatar: "/avatars/agent-smith.jpg",
-    status: "active",
-    joinDate: "2024-02-10",
-  });
-
-  const [wallet] = useState<Wallet>({
-    balance: 18900.75,
-    currency: "BDT",
-    lastUpdated: "2024-04-22T10:15:00Z",
-    totalDeposits: 50000,
-    totalWithdrawals: 31100,
-  });
-
+  
   const quickActions: QuickAction[] = [
     {
       id: "send-money",
@@ -106,10 +94,12 @@ export default function AgentOverview() {
       pending: "bg-yellow-100 text-yellow-800",
       failed: "bg-red-100 text-red-800",
     };
+    // Handles the case where agentData.data.isActive is a boolean or string
+    const statusKey = typeof status === 'boolean' ? (status ? 'active' : 'inactive') : status.toLowerCase();
 
     return (
-      <Badge variant="secondary" className={variants[status as keyof typeof variants]}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+      <Badge variant="secondary" className={variants[statusKey as keyof typeof variants] || variants.inactive}>
+        {statusKey.charAt(0).toUpperCase() + statusKey.slice(1)}
       </Badge>
     );
   };
@@ -124,10 +114,12 @@ export default function AgentOverview() {
     return icons[type as keyof typeof icons] || "💳";
   };
 
+  // Uses walletData.data for currency formatting
   const formatCurrency = (amount: number) => {
+    const currency = walletData?.data?.currency || "USD"; // Default to USD if data is missing
     return new Intl.NumberFormat("en-BD", {
       style: "currency",
-      currency: wallet.currency,
+      currency: currency,
     }).format(amount);
   };
 
@@ -141,16 +133,98 @@ export default function AgentOverview() {
     });
   };
 
+  // --- Tour Logic (useEffect) ---
+  useEffect(() => {
+    // 1. Check if the tour has already been shown
+    if (localStorage.getItem(AGENT_TOUR_SHOWN_KEY) === "true") {
+      return;
+    }
+
+    // 2. Define and run the driver
+    const agentTour = driver({
+      popoverClass: "driverjs-theme",
+      showProgress: true,
+      prevBtnText: "Previous",
+      nextBtnText: "Next",
+      animate: true,
+      showButtons: ['next', 'previous', 'close'],
+      steps: [
+        {
+          element: "#agent-overview-main", // Target the main container
+          popover: {
+            title: "Welcome to your Agent Dashboard",
+            description: "This is your control center for managing clients and commissions."
+          },
+        },
+        {
+          element: "#agent-info-card",
+          popover: {
+            title: "Agent Information",
+            description: "Your key personal and account details are shown here."
+          }
+        },
+        {
+          element: "#quick-actions-card",
+          popover: {
+            title: "Quick Actions",
+            description: "Instantly perform common tasks like sending money or requesting payouts."
+          }
+        },
+        {
+          element: "#commission-wallet-card",
+          popover: {
+            title: "Commission Wallet",
+            description: "View your current balance and last update time for your earnings."
+          }
+        },
+        {
+          element: "#recent-activities-card",
+          popover: {
+            title: "Recent Activities",
+            description: "Check the last five transactions to monitor your flow of funds."
+          }
+        },
+        {
+          popover: {
+            title: "Tour Complete! 🎉",
+            description: "You're ready to go! Start managing your operations efficiently."
+          }
+        }
+      ],
+      // 3. Add callback to set the flag when the tour is finished or closed
+      onDestroyStarted: () => {
+        localStorage.setItem(AGENT_TOUR_SHOWN_KEY, "true");
+        agentTour.destroy();
+      }
+    });
+
+    // Start the tour
+    // We delay the start slightly to ensure all DOM elements are rendered,
+    // especially after the data loading is complete.
+    setTimeout(() => {
+      // We only drive if the check above didn't return, but a re-check is safe
+      if (localStorage.getItem(AGENT_TOUR_SHOWN_KEY) !== "true") {
+        agentTour.drive();
+      }
+    }, 500); // 500ms delay
+
+  }, [isAgentLoading, isWalletLoading, isHistoryLoading]); // Rerun if loading state changes (i.e., data becomes available)
+
+
+  // --- Loading/Error States ---
   if (isAgentLoading || isWalletLoading || isHistoryLoading) {
-    return <div>এজেন্টের তথ্য লোড হচ্ছে...</div>;
+    return <div className="text-center py-10 text-muted-foreground">এজেন্টের তথ্য লোড হচ্ছে...</div>;
   }
 
-  if (!agentData || !walletData || !agentData.data || !walletData.data) {
-    return <div>ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
+  // Ensure all necessary data objects and their 'data' properties exist
+  if (!agentData || !walletData || !agettransactions || !agentData.data || !walletData.data || !agettransactions.data) {
+    return <div className="text-center py-10 text-red-500">ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
   }
 
+
+  // --- Render Component ---
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div id="agent-overview-main" className="container mx-auto p-4 space-y-6"> {/* Added ID for tour */}
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
@@ -178,18 +252,20 @@ export default function AgentOverview() {
         {/* Left Column */}
         <div className="lg:col-span-1 space-y-6">
           {/* Agent Info */}
-          <Card>
+          <Card id="agent-info-card"> {/* Added ID for tour */}
             <CardHeader className="flex flex-row items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={agent.avatar} alt={agent.name} />
+                {/* <AvatarImage src={agent.avatar} alt={agentData.name} /> */}
                 <AvatarFallback className="text-lg">
-                  {agentData.data.name.split(" ").map((n: string) => n[0]).join("")}
+                  {/* Safely get initials */}
+                  {agentData.data.name?.split(" ").map((n: string) => n[0]).join("") || "AG"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <CardTitle className="text-xl">{agentData.data.name}</CardTitle>
                 <CardDescription>{agentData.data.email}</CardDescription>
                 <div className="flex items-center gap-2 mt-2">
+                  {/* Status from data is a boolean, converting to 'active'/'inactive' */}
                   {getStatusBadge(agentData.data.isActive)}
                   <span className="text-sm text-muted-foreground">
                     Joined {formatDate(agentData.data.createdAt)}
@@ -200,7 +276,7 @@ export default function AgentOverview() {
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="font-medium text-muted-foreground">Phone</div>
-                <div>{agent.phone}</div>
+                <div>{agentData.data.phone || "N/A"}</div>
               </div>
               <div>
                 <div className="font-medium text-muted-foreground">Agent ID</div>
@@ -210,7 +286,7 @@ export default function AgentOverview() {
           </Card>
 
           {/* Quick Actions */}
-          <Card>
+          <Card id="quick-actions-card"> {/* Added ID for tour */}
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
               <CardDescription>Perform common agent operations</CardDescription>
@@ -239,7 +315,7 @@ export default function AgentOverview() {
         {/* Right Column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Wallet Overview */}
-          <Card>
+          <Card id="commission-wallet-card"> {/* Added ID for tour */}
             <CardHeader>
               <CardTitle>Commission Wallet</CardTitle>
               <CardDescription>
@@ -257,7 +333,7 @@ export default function AgentOverview() {
           </Card>
 
           {/* Recent Transactions */}
-          <Card>
+          <Card id="recent-activities-card"> {/* Added ID for tour */}
             <CardHeader className="flex flex-row justify-between items-center">
               <div>
                 <CardTitle>Recent Activities</CardTitle>
@@ -281,9 +357,10 @@ export default function AgentOverview() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <span className="text-xl">{getTransactionIcon(transaction.type)}</span>
-                          <span className="font-medium capitalize">{transaction.type}</span>
+                          <span className="font-medium capitalize">{transaction.type.replace('_', ' ')}</span>
                         </div>
                       </TableCell>
+                      {/* Assuming commissions/deposits are positive and payouts/withdrawals are negative for color coding */}
                       <TableCell className={`font-medium ${transaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
                         {formatCurrency(transaction.amount)}
                       </TableCell>
