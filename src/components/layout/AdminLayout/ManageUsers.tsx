@@ -85,6 +85,7 @@ export default function ManageUsers() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
+                            <TableHead>ID</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Role</TableHead>
                             <TableHead>Status</TableHead>
@@ -100,6 +101,7 @@ export default function ManageUsers() {
                                 return (
                                     <TableRow key={user._id}>
                                         <TableCell>{user.name}</TableCell>
+                                        <TableCell>{user._id}</TableCell>
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell className="capitalize">{user.role}</TableCell>
                                         <TableCell>
