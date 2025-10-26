@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { useAgentupdateMutation, useAllagentInfoQuery } from "@/redux/features/admin/admin.api";
 import type { User } from "@/types/user";
+import { toast } from "sonner";
 
 interface IFilter {
   name: string;
@@ -45,6 +46,7 @@ export default function ManageAgents() {
         console.log(agentId,newStatus)
       const res = await updateAgentStatus({ agentId, status: newStatus }).unwrap();
       console.log(res);
+      toast.success(`Agent ${agentId} set to ${newStatus}`)
       console.log(`Agent ${agentId} set to ${newStatus}`);
       refetch(); // ✅ refresh instantly
     } catch (err) {

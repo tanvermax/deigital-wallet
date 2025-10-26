@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 // Import with the correct, descriptive name from your API slice
 import { useAllUserInfoQuery, useBlockinfoMutation } from "@/redux/features/admin/admin.api";
 import type { User } from "@/types/user";
+import { toast } from "sonner";
 
 interface Ifilter {
     name: string,
@@ -49,6 +50,7 @@ export default function ManageUsers() {
             // You can add a success toast/notification here.
             refetch()
             console.log(res)
+            toast.success(`Successfully set user ${userId} to ${newStatus}`)
             console.log(`Successfully set user ${userId} to ${newStatus}`);
         } catch (err) {
             // Handle error (e.g., show an error toast)
