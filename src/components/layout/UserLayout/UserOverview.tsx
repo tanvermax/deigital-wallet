@@ -25,17 +25,7 @@ export default function UserOverview() {
     const { data: walletData, isLoading: isWalletLoading } = useWalletinfoQuery(undefined)
     const { data: transactions, isLoading: isHistoryLoading } = useUserTransactionQuery(undefined)
 
-    // Mock user data (kept for structure, but actual data comes from userData)
-    // const [user] = useState<User>({
-    //     _id: "1",
-    //     name: "John Doe",
-    //     email: "john.doe@example.com",
-    //     phone: "+1 (555) 123-4567",
-    //     avatar: "/avatars/john-doe.jpg",
-    //     status: "active",
-    //     joinDate: "2024-01-15"
-    // });
-
+    
     // Mock wallet data (kept for structure, but actual data comes from walletData)
     const [wallet] = useState<Wallet>({
         balance: 12500.75,
@@ -126,12 +116,12 @@ export default function UserOverview() {
     
     // --- Tour Logic (useEffect) ---
     useEffect(() => {
-        // 1. Check if the tour has already been shown
+
         if (localStorage.getItem(USER_TOUR_SHOWN_KEY) === "true") {
             return;
         }
 
-        // 2. Define and run the driver
+
         const userTour = driver({
             popoverClass: "driverjs-theme",
             showProgress: true,
@@ -141,7 +131,7 @@ export default function UserOverview() {
             showButtons: ['next', 'previous', 'close'],
             steps: [
                 {
-                    element: "#user-dashboard-main", // Target the main container
+                    element: "#user-dashboard-main",
                     popover: {
                         title: "Welcome to your User Dashboard",
                         description: "This is where you manage your account, wallet, and transactions."
@@ -209,7 +199,7 @@ export default function UserOverview() {
     if (!userData || !walletData || !transactions || !userData.data || !walletData.data) {
         return <div className="text-center py-10 text-red-500">ডেটা পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</div>;
     }
-    
+    console.log(userData.data)
     // --- Render Component ---
     return (
         <div id="user-dashboard-main" className="container mx-auto p-4 space-y-6"> {/* Added ID for tour */}
@@ -273,25 +263,75 @@ export default function UserOverview() {
                         </CardContent>
                     </Card>
 
-                    <Card id="wallet-balance-card"> {/* Added ID for tour */}
-                        <CardHeader>
-                            <CardTitle>Wallet Balance</CardTitle>
-                            <CardDescription>
-                                Current balance and wallet statistics
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {/* Main Balance */}
-                            <div className="text-center">
-                                <div className="text-4xl font-bold text-green-600">
-                                    {formatCurrency(walletData.data.balance)}
-                                </div>
-                                <p className="text-muted-foreground mt-2">
-                                    Last updated: {formatDate(walletData.data.updatedAt)}
+                    <div className="">
+                {/* Left Column - User Info & Quick Actions */}
+                <div className="lg:col-span-1 space-y-6">
+                    {/* User Profile Card */}
+                    {/* ... (Keep User Profile Card the same) ... */}
+
+                    {/* 💳 STYLIZED WALLET CARD REPLACEMENT 💳 */}
+                    <div
+                        id="wallet-balance-card" // Keep ID for the tour
+                        className="relative h-60 w-full overflow-hidden rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer"
+                        // Apply a visually appealing gradient background (example: deep blue/purple)
+                        style={{
+                            background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
+                            color: "white"
+                        }}
+                    >
+                        {/* Subtle Background Pattern (Optional) */}
+                        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
+                            backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
+                            backgroundSize: '20px 20px'
+                        }}></div>
+
+                        {/* Top Section */}
+                        <div className="p-6 flex justify-between items-start">
+                            <div className="text-2xl font-semibold tracking-wider">
+                                {/* Placeholder for a Chip icon */}
+                                <span className="inline-block w-8 h-6 bg-yellow-400 rounded-md shadow-inner border border-gray-600"></span>
+                            </div>
+                            <div className="text-2xl font-serif font-bold italic tracking-wider">
+                                {/* Network Placeholder (e.g., VISA/MASTER) */}
+                                VISA
+                            </div>
+                        </div>
+
+                        {/* Middle Section - Balance */}
+                        <div className="px-6 mt-4">
+                            <p className="text-sm opacity-75">Current Balance</p>
+                            <div className="text-4xl font-extrabold tracking-tight mt-1">
+                                {formatCurrency(walletData.data.balance)}
+                            </div>
+                        </div>
+
+                        {/* Bottom Section - Details */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 pt-4 flex justify-between items-end text-sm">
+                            <div className="space-y-1">
+                                <p className="text-xs opacity-70">Card Holder</p>
+                                <p className="font-medium uppercase tracking-wider">
+                                    {/* Use user name for card holder */}
+                                    {userData.data.name || 'ACCOUNT HOLDER'}
                                 </p>
                             </div>
-                        </CardContent>
-                    </Card>
+                            <div className="text-right space-y-1">
+                                <p className="text-xs opacity-70">Valid Thru</p>
+                                <p className="font-medium tracking-wider">
+                                    {/* Use a placeholder date or formatted update date (if relevant) */}
+                                    12/30
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {/* 💳 END OF STYLIZED WALLET CARD REPLACEMENT 💳 */}
+
+                    {/* Quick Actions */}
+                    {/* ... (Keep Quick Actions Card the same) ... */}
+                </div>
+
+                {/* Right Column - Transactions */}
+                {/* ... (Keep Recent Transactions Card the same) ... */}
+            </div>
 
                     {/* Quick Actions */}
                     <Card id="quick-actions-card"> {/* Added ID for tour */}

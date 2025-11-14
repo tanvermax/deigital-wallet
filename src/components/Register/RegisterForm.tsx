@@ -22,6 +22,7 @@ const registerSchema = z
   .object({
     name: z.string().min(3, { message: "Name is too short" }).max(50),
     email: z.string().email(),
+    phone: z.string().min(10, { message: "Number is too short" }).max(15),
     role: z.enum(["USER", "AGENT"], { message: "Please select a valid role" }),
     password: z.string().min(8, { message: "Password is too short" }),
     confirmPassword: z.string().min(8, { message: "Confirm Password is too short" }),
@@ -40,6 +41,7 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
       name: "",
       email: "",
       role: "USER",
+      phone:"",
       password: "",
       confirmPassword: "",
     },
@@ -50,10 +52,12 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
     const userInfo = {
       name: data.name,
       email: data.email,
+      phone:data.phone,
       role: data.role,
       password: data.password,
     }
     try {
+      console.log(userInfo)
       const result = await registration(userInfo).unwrap();
       console.log(result.message);
     toast.success(` ${result.message}`)
@@ -65,9 +69,10 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
       // navigate("/verify");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error:any) {
-    toast.error(`error  ${error.data.message}`)
+    toast.error(`error  ${error.data?.errorSources[1]?.message}`)
 
-      console.error(error);
+      console.error(error.data?.errorSources[0]);
+      console.error(error.data?.errorSources[1]);
     }
   };
 
@@ -107,6 +112,19 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input placeholder="john.doe@example.com" type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="+880" type="number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

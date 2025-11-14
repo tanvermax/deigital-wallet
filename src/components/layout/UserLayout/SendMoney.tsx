@@ -9,7 +9,7 @@ const SendMoney: React.FC = () => {
   const [sendmoneyinfo] = useSendmoneyMutation()
 
   const [formData, setFormData] = useState({
-    reciverId: "",
+    phone: "",
     amount: "",
   });
 
@@ -24,9 +24,9 @@ const SendMoney: React.FC = () => {
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { reciverId, amount } = formData;
+    const { phone, amount } = formData;
 
-    if (!reciverId || !amount) {
+    if (!phone || !amount) {
       toast.error("সব তথ্য পূরণ করুন!");
       return;
     }
@@ -37,7 +37,7 @@ const SendMoney: React.FC = () => {
       const res = await sendmoneyinfo(formData).unwrap();
 
       toast.success(res.data.message || "টাকা পাঠানো সফল হয়েছে!");
-      setFormData({ reciverId: "", amount: "" });
+      setFormData({ phone: "", amount: "" });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error)
@@ -54,15 +54,16 @@ const SendMoney: React.FC = () => {
       <form onSubmit={handleSend} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">
-            Receiver User ID
+            Receiver User Number
           </label>
           <input
-            type="text"
-            name="reciverId"
-            value={formData.reciverId}
+            type="number"
+            name="phone"
+            
+            value={formData.phone}
             onChange={handleChange}
             className="w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-green-500"
-            placeholder="Enter receiver ID"
+            placeholder="Enter receiver Number"
           />
         </div>
 
