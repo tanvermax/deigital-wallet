@@ -12,8 +12,8 @@ import { useTransactionInfoQuery } from '@/redux/features/admin/admin.api';
 
 interface Transaction {
   _id: string;
-  sender:string ;
-  receiver:  string;
+  sender: string;
+  receiver: string;
   amount: number;
   type: 'DEPOSIT' | 'WITHDRAW' | 'TRANSFER';
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
@@ -23,16 +23,16 @@ interface Transaction {
 const ManageTransactions: React.FC = () => {
   const { data: tansactionsData = [], isLoading, refetch } = useTransactionInfoQuery(undefined);
 
-//   console.log(tansactionsData.tansactions)
+  //   console.log(tansactionsData.tansactions)
 
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'SUCCESS' | 'FAILED'>('ALL');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'DEPOSIT' | 'WITHDRAW' | 'TRANSFER'>('ALL');
   const [dateFilter, setDateFilter] = useState('');
 
-   if (isLoading)
+  if (isLoading)
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -44,7 +44,7 @@ const ManageTransactions: React.FC = () => {
   const filteredTransactions = tansactionsData.tansactions.filter((tx: Transaction) => {
     const matchesSearch =
       tx.sender.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.receiver.toLowerCase().includes(searchTerm.toLowerCase()) 
+      tx.receiver.toLowerCase().includes(searchTerm.toLowerCase())
     //   tx.sender?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     //   tx.receiver?.email?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -56,7 +56,7 @@ const ManageTransactions: React.FC = () => {
     return matchesSearch && matchesStatus && matchesType && matchesDate;
   });
 
- 
+
   return (
     <Card className="mt-6 shadow-md">
       <CardHeader className="flex justify-between items-center">
@@ -109,7 +109,8 @@ const ManageTransactions: React.FC = () => {
         </div>
 
         {/* Transaction Table */}
-        <div className="overflow-x-auto rounded-lg border">
+       <div className='overflow-x-auto'>
+         <div className="overflow-x-auto h-[400px] md:h-[600px] rounded-lg border">
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
@@ -123,28 +124,29 @@ const ManageTransactions: React.FC = () => {
             </thead>
             <tbody>
               {filteredTransactions.length ? (
-                filteredTransactions.map((tx:any) => (
-                  <tr key={tx._id} className="border-t hover:bg-gray-50">
-                    <td className="p-3">{tx.sender || 'N/A'}</td>
-                    <td className="p-3">{tx.receiver?.name || 'N/A'}</td>
-                    <td className="p-3 font-medium">${tx.amount.toFixed(2)}</td>
-                    <td className="p-3">{tx.type}</td>
-                    <td
-                      className={`p-3 font-semibold ${
-                        tx.status === 'SUCCESS'
-                          ? 'text-green-600'
-                          : tx.status === 'PENDING'
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
-                      }`}
-                    >
-                      {tx.status}
-                    </td>
-                    <td className="p-3">
-                      {format(new Date(tx.createdAt), 'dd MMM yyyy, hh:mm a')}
-                    </td>
-                  </tr>
-                ))
+                [...filteredTransactions]
+                  .reverse()
+                  .map((tx: any) => (
+                    <tr key={tx._id} className="border-t hover:bg-gray-50">
+                      <td className="p-3">{tx.sender || 'N/A'}</td>
+                      <td className="p-3">{tx.receiver?.name || 'N/A'}</td>
+                      <td className="p-3 font-medium">${tx.amount.toFixed(2)}</td>
+                      <td className="p-3">{tx.type}</td>
+                      <td
+                        className={`p-3 font-semibold ${tx.status === 'SUCCESS'
+                            ? 'text-green-600'
+                            : tx.status === 'PENDING'
+                              ? 'text-yellow-600'
+                              : 'text-red-600'
+                          }`}
+                      >
+                        {tx.status}
+                      </td>
+                      <td className="p-3">
+                        {format(new Date(tx.createdAt), 'dd MMM yyyy, hh:mm a')}
+                      </td>
+                    </tr>
+                  ))
               ) : (
                 <tr>
                   <td colSpan={6} className="p-6 text-center text-gray-500">
@@ -152,9 +154,11 @@ const ManageTransactions: React.FC = () => {
                   </td>
                 </tr>
               )}
+
             </tbody>
           </table>
         </div>
+       </div>
       </CardContent>
     </Card>
   );

@@ -10,7 +10,7 @@ import { useAdmoneyMutation } from "@/redux/features/agent/agenttansaction.api";
 // import { useAllUserInfoQuery } from "@/redux/features/admin/admin.api";
 
 export default function AgentAddMoney() {
-  const [userId, setUserId] = useState("");
+  const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
 
@@ -18,17 +18,17 @@ export default function AgentAddMoney() {
 //   const {data:userdata} = useAllUserInfoQuery(undefined)
 // console.log(userdata)
   const handleAddMoney = async () => {
-    if (!userId || !amount || amount <= 0) {
+    if (!phone || !amount || amount <= 0) {
       toast.error("দয়া করে বৈধ ইউজার ID এবং পরিমাণ লিখুন!");
       return;
     }
 
     setLoading(true);
     try {
-      console.log(userId, amount)
-      await addMoney({ userId, amount }).unwrap(); // replace with your API call
-      toast.success(`Successfully added $${amount} to user ${userId}`);
-      setUserId("");
+      console.log(phone, amount)
+      await addMoney({ phone, amount }).unwrap(); // replace with your API call
+      toast.success(`Successfully added $${amount} to user ${phone}`);
+      setPhone("");
       setAmount("");
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to add money!");
@@ -45,12 +45,12 @@ export default function AgentAddMoney() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">User ID</label>
+            <label className="text-sm font-medium text-gray-700">User Phone</label>
             <Input
-              type="text"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="Enter user ID"
+              type="number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter user Number"
               className="mt-1"
             />
           </div>

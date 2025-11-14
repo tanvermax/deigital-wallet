@@ -266,15 +266,17 @@ export default function AdminOverview() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.tansactions.slice(0, 5).map((txn: Transaction) => (
-                <TableRow key={txn._id}>
-                  <TableCell>{txn._id.slice(-6)}</TableCell>
-                  <TableCell>{txn.type}</TableCell>
-                  <TableCell className="font-medium text-green-600">{formatCurrency(txn.amount)}</TableCell>
-                  <TableCell>{txn.receiver || "N/A"}</TableCell>
-                  <TableCell>{getStatusBadge(txn.status)}</TableCell>
-                </TableRow>
-              ))}
+             {[...transactions.tansactions].reverse().slice(0, 5).map((txn: Transaction) => (
+  <TableRow key={txn._id}>
+    <TableCell>{txn._id.slice(-6)}</TableCell>
+    <TableCell>{txn.type}</TableCell>
+    <TableCell className="font-medium text-green-600">
+      {formatCurrency(txn.amount)}
+    </TableCell>
+    <TableCell>{txn.receiver || "N/A"}</TableCell>
+    <TableCell>{getStatusBadge(txn.status)}</TableCell>
+  </TableRow>
+))}
             </TableBody>
           </Table>
         </CardContent>

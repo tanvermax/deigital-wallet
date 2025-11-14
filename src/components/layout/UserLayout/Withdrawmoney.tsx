@@ -10,7 +10,7 @@ const Withdrawmoney: React.FC = () => {
 
   const [withdraw] = useWithdrawinfoMutation();
   const [formData, setFormData] = useState({
-    agentId: "",
+    phone: "",
     amount: "",
 
   });
@@ -25,8 +25,8 @@ const Withdrawmoney: React.FC = () => {
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { agentId, amount } = formData;
-    if (!agentId || !amount) {
+    const { phone, amount } = formData;
+    if (!phone || !amount) {
       toast.error("সব ফিল্ড পূরণ করুন!");
       return;
     }
@@ -39,7 +39,7 @@ const Withdrawmoney: React.FC = () => {
       console.log(res)
       toast.success(`${res.message}`);
 
-      setFormData({ agentId: "", amount: "" });
+      setFormData({ phone: "", amount: "" });
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -58,12 +58,12 @@ const Withdrawmoney: React.FC = () => {
         <div>
           <label className="block text-sm font-medium mb-1">Agent ID</label>
           <input
-            type="text"
-            name="agentId"
-            value={formData.agentId}
+            type="number"
+            name="phone"
+            value={formData.phone}
             onChange={handleChange}
             className="w-full border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter Agent ID"
+            placeholder="Enter Agent phone  number"
           />
         </div>
 

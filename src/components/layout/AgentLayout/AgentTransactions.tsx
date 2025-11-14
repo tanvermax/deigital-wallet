@@ -9,12 +9,13 @@ import { formatCurrency, formatDate, getTransactionIcon } from "@/utils/helper";
 import { useEffect } from "react";
 
 export default function AgentTransactions() {
+  
   const { data: transactions, isLoading, refetch } = useAgentTransactionQuery(undefined);
   useEffect(() => {
     refetch();
   })
 
-  console.log(transactions)
+  // console.log(transactions)
   if (isLoading) return <div>Transaction লোড হচ্ছে...</div>;
   if (!transactions || !transactions.data) return <div>কোনো transaction পাওয়া যায়নি।</div>;
 
